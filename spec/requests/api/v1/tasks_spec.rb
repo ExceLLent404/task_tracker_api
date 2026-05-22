@@ -18,9 +18,19 @@ RSpec.describe "Tasks API", type: :request do
                    id: { type: :integer },
                    title: { type: :string },
                    scheduled_date: { type: :string, format: :date },
-                   status: { type: :string, enum: %w[scheduled completed] }
+                   status: { type: :string, enum: %w[scheduled completed] },
+                   tags: {
+                     type: :array,
+                     items: {
+                       type: :object,
+                       properties: {
+                         id: { type: :integer },
+                         name: { type: :string }
+                       }
+                     }
+                   }
                  },
-                 required: %w[id title scheduled_date status]
+                 required: %w[id title scheduled_date status tags]
                }
 
         before { create_pair(:task) }
@@ -43,17 +53,24 @@ RSpec.describe "Tasks API", type: :request do
           title: { type: :string },
           description: { type: :string },
           scheduled_date: { type: :string, format: :date },
-          status: { type: :string, enum: %w[scheduled completed] }
+          status: { type: :string, enum: %w[scheduled completed] },
+          tag_ids: {
+            type: :array,
+            items: { type: :integer }
+          }
         },
         required: %w[title scheduled_date]
       }
 
       response "201", "task created" do
-        let(:task) { attributes_for(:task) }
+        let(:tag) { create(:tag) }
+        let(:task) { attributes_for(:task).merge(tag_ids: [ tag.id ]) }
 
         run_test! do |response|
           body = JSON.parse(response.body)
           expect(body["title"]).to eql(task[:title])
+          expect(body["tags"].size).to eql(1)
+          expect(body["tags"].first["id"]).to eql(tag.id)
         end
       end
 
@@ -84,9 +101,19 @@ RSpec.describe "Tasks API", type: :request do
                  scheduled_date: { type: :string, format: :date },
                  status: { type: :string, enum: %w[scheduled completed] },
                  created_at: { type: :string, format: "date-time" },
-                 updated_at: { type: :string, format: "date-time" }
+                 updated_at: { type: :string, format: "date-time" },
+                 tags: {
+                   type: :array,
+                   items: {
+                     type: :object,
+                     properties: {
+                       id: { type: :integer },
+                       name: { type: :string }
+                     }
+                   }
+                 }
                },
-               required: %w[id title description scheduled_date status created_at updated_at]
+               required: %w[id title description scheduled_date status created_at updated_at tags]
 
         let(:id) { create(:task).id }
 
@@ -111,17 +138,24 @@ RSpec.describe "Tasks API", type: :request do
           title: { type: :string },
           description: { type: :string },
           scheduled_date: { type: :string, format: :date },
-          status: { type: :string, enum: %w[scheduled completed] }
+          status: { type: :string, enum: %w[scheduled completed] },
+          tag_ids: {
+            type: :array,
+            items: { type: :integer }
+          }
         }
       }
 
       response "200", "task updated" do
         let(:id) { create(:task).id }
-        let(:task) { { title: "Updated task" } }
+        let(:tag) { create(:tag) }
+        let(:task) { { title: "Updated task", tag_ids: [ tag.id ] } }
 
         run_test! do |response|
           body = JSON.parse(response.body)
           expect(body["title"]).to eql(task[:title])
+          expect(body["tags"].size).to eql(1)
+          expect(body["tags"].first["id"]).to eql(tag.id)
         end
       end
 

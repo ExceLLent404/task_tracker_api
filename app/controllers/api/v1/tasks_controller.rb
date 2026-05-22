@@ -4,7 +4,7 @@ module Api
       before_action :set_task, only: [ :show, :update, :destroy ]
 
       def index
-        tasks = Task.all.order(created_at: :desc)
+        tasks = Task.all.includes(:tags).order(created_at: :desc)
         tasks = tasks.by_status(params[:status])
         tasks = tasks.by_date_range(date_from_params(params[:date_from]), date_from_params(params[:date_to]))
         render json: TaskBlueprint.render(tasks, view: :index)
@@ -43,7 +43,7 @@ module Api
       end
 
       def task_params
-        params.permit(:title, :description, :scheduled_date, :status)
+        params.permit(:title, :description, :scheduled_date, :status, tag_ids: [])
       end
 
       def date_from_params(value)

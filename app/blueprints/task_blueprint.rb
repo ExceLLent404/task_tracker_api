@@ -11,6 +11,8 @@ class TaskBlueprint < Blueprinter::Base
     task.updated_at.iso8601
   end
 
+  association :tags, blueprint: TagBlueprint, view: :index
+
   view :index do
     excludes :description, :created_at, :updated_at
   end

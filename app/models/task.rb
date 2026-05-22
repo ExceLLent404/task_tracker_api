@@ -1,4 +1,7 @@
 class Task < ApplicationRecord
+  has_many :task_tags, dependent: :destroy
+  has_many :tags, through: :task_tags
+
   enum :status, { scheduled: 0, completed: 1 }, validate: true
 
   validates :title, presence: true
