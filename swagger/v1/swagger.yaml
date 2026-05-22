@@ -9,6 +9,28 @@ paths:
       summary: List tasks
       tags:
       - Tasks
+      parameters:
+      - name: status
+        in: query
+        enum:
+        - scheduled
+        - completed
+        required: false
+        schema:
+          type: string
+        description: ":\n * `scheduled` \n * `completed` \n "
+      - name: date_from
+        in: query
+        format: date
+        required: false
+        schema:
+          type: string
+      - name: date_to
+        in: query
+        format: date
+        required: false
+        schema:
+          type: string
       responses:
         '200':
           description: successful response

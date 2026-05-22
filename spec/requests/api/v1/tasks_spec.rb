@@ -6,6 +6,10 @@ RSpec.describe "Tasks API", type: :request do
       tags "Tasks"
       produces "application/json"
 
+      parameter name: :status, in: :query, type: :string, enum: %w[scheduled completed], required: false
+      parameter name: :date_from, in: :query, type: :string, format: :date, required: false
+      parameter name: :date_to, in: :query, type: :string, format: :date, required: false
+
       response "200", "successful response" do
         schema type: :array,
                items: {

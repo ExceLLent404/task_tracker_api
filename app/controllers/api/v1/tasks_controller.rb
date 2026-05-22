@@ -5,6 +5,8 @@ module Api
 
       def index
         tasks = Task.all.order(created_at: :desc)
+        tasks = tasks.by_status(params[:status])
+        tasks = tasks.by_date_range(date_from_params(params[:date_from]), date_from_params(params[:date_to]))
         render json: TaskBlueprint.render(tasks, view: :index)
       end
 
@@ -42,6 +44,14 @@ module Api
 
       def task_params
         params.permit(:title, :description, :scheduled_date, :status)
+      end
+
+      def date_from_params(value)
+        return nil if value.blank?
+
+        Date.iso8601(value)
+      rescue Date::Error
+        nil
       end
     end
   end
