@@ -1,0 +1,29 @@
+services:
+  app:
+    build:
+      context: .
+      target: development
+    environment:
+      DB_USER: rails
+      DB_PASS: 123456
+      DB_HOST: postgres
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/rails
+      - bundle:/usr/local/bundle
+      - home:/home/rails
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:16.14-alpine3.23
+    environment:
+      POSTGRES_USER: rails
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  bundle:
+  home:

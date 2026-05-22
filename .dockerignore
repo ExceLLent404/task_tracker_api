@@ -39,7 +39,9 @@
 
 # Ignore development files
 /.devcontainer
+/.vscode
 
 # Ignore Docker-related files
 /.dockerignore
+/docker-compose.yml
 /Dockerfile*

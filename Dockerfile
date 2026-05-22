@@ -1,14 +1,54 @@
 # syntax=docker/dockerfile:1
 # check=error=true
 
+# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
+ARG RUBY_VERSION=4.0.4
+
+FROM ruby:$RUBY_VERSION-slim-trixie AS development
+
+RUN groupadd --gid 1001 rails && \
+    useradd --uid 1000 --gid 1001 --home-dir /home/rails --shell /bin/bash rails && \
+    mkdir /rails && chown rails:rails /rails && \
+    mkdir /home/rails && chown rails:rails /home/rails && \
+    apt-get update -qq && \
+    apt-get install -y --no-install-recommends sudo && \
+    echo "%rails ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends curl gnupg && \
+    curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc | \
+        gpg --dearmor -o /usr/share/keyrings/postgresql-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] https://apt.postgresql.org/pub/repos/apt/ trixie-pgdg main" > \
+        /etc/apt/sources.list.d/postgresql.list && \
+    apt-get purge -y --auto-remove gnupg && \
+    rm -rf /var/lib/apt/lists/*
+
+
+RUN apt-get update -qq && \
+    apt-get install -y --no-install-recommends \
+        git \
+        build-essential \
+        libyaml-dev \
+        libpq-dev postgresql-client-16 && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /rails
+
+USER rails
+
+EXPOSE 3000
+
+CMD ["bash"]
+
+
+
 # This Dockerfile is designed for production, not development. Use with Kamal or build'n'run by hand:
 # docker build -t task_tracker_api .
 # docker run -d -p 80:80 -e RAILS_MASTER_KEY=<value from config/master.key> --name task_tracker_api task_tracker_api
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
-# Make sure RUBY_VERSION matches the Ruby version in .ruby-version
-ARG RUBY_VERSION=4.0.4
 FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
 
 # Rails app lives here
