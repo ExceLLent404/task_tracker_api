@@ -3,4 +3,5 @@ class Tag < ApplicationRecord
   has_many :tasks, through: :task_tags
 
   validates :name, presence: true, uniqueness: true
+  validates :system, inclusion: { in: [ true, false ] }
 end

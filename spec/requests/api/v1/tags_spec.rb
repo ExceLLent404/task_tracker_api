@@ -71,10 +71,11 @@ RSpec.describe "Tags API", type: :request do
                properties: {
                  id: { type: :integer },
                  name: { type: :string },
+                 system: { type: :boolean },
                  created_at: { type: :string, format: "date-time" },
                  updated_at: { type: :string, format: "date-time" }
                },
-               required: %w[id name created_at updated_at]
+               required: %w[id name system created_at updated_at]
 
         let(:id) { create(:tag).id }
 
@@ -126,6 +127,16 @@ RSpec.describe "Tags API", type: :request do
           expect(body["errors"]).to be_present
         end
       end
+
+      response "422", "system tag cannot be modified" do
+        let(:id) { create(:tag, :system).id }
+        let(:tag) { { name: "New name" } }
+
+        run_test! do |response|
+          body = JSON.parse(response.body)
+          expect(body["error"]).to eql("System tag cannot be modified")
+        end
+      end
     end
 
     delete "Delete tag" do
@@ -141,6 +152,15 @@ RSpec.describe "Tags API", type: :request do
         let(:id) { -1 }
 
         run_test!
+      end
+
+      response "422", "system tag cannot be deleted" do
+        let(:id) { create(:tag, :system).id }
+
+        run_test! do |response|
+          body = JSON.parse(response.body)
+          expect(body["error"]).to eql("System tag cannot be deleted")
+        end
       end
     end
   end

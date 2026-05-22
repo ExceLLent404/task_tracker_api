@@ -69,6 +69,8 @@ paths:
                     type: integer
                   name:
                     type: string
+                  system:
+                    type: boolean
                   created_at:
                     type: string
                     format: date-time
@@ -78,6 +80,7 @@ paths:
                 required:
                 - id
                 - name
+                - system
                 - created_at
                 - updated_at
         '404':
@@ -93,7 +96,7 @@ paths:
         '404':
           description: tag not found
         '422':
-          description: validation error
+          description: system tag cannot be modified
       requestBody:
         content:
           application/json:
@@ -111,6 +114,8 @@ paths:
           description: tag deleted
         '404':
           description: tag not found
+        '422':
+          description: system tag cannot be deleted
   "/api/v1/tasks":
     get:
       summary: List tasks
