@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_124320) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_130820) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,26 +22,35 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_124320) do
     t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
-  create_table "task_tags", force: :cascade do |t|
+  create_table "task_instances", force: :cascade do |t|
     t.datetime "created_at", null: false
-    t.bigint "tag_id", null: false
-    t.bigint "task_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["tag_id"], name: "index_task_tags_on_tag_id"
-    t.index ["task_id", "tag_id"], name: "index_task_tags_on_task_id_and_tag_id", unique: true
-    t.index ["task_id"], name: "index_task_tags_on_task_id"
-  end
-
-  create_table "tasks", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "description"
     t.date "scheduled_date", null: false
     t.integer "status", default: 0, null: false
-    t.string "title", null: false
+    t.bigint "task_template_id", null: false
     t.datetime "updated_at", null: false
-    t.index ["scheduled_date"], name: "index_tasks_on_scheduled_date"
+    t.index ["scheduled_date"], name: "index_task_instances_on_scheduled_date"
+    t.index ["task_template_id", "scheduled_date"], name: "index_task_instances_on_task_template_id_and_scheduled_date", unique: true
+    t.index ["task_template_id"], name: "index_task_instances_on_task_template_id"
   end
 
-  add_foreign_key "task_tags", "tags"
-  add_foreign_key "task_tags", "tasks"
+  create_table "task_template_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "tag_id", null: false
+    t.bigint "task_template_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tag_id"], name: "index_task_template_tags_on_tag_id"
+    t.index ["task_template_id", "tag_id"], name: "index_task_template_tags_on_task_template_id_and_tag_id", unique: true
+    t.index ["task_template_id"], name: "index_task_template_tags_on_task_template_id"
+  end
+
+  create_table "task_templates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_foreign_key "task_instances", "task_templates"
+  add_foreign_key "task_template_tags", "tags"
+  add_foreign_key "task_template_tags", "task_templates"
 end

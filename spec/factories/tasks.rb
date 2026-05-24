@@ -1,8 +1,16 @@
 FactoryBot.define do
-  factory :task do
+  factory :task, class: "Task" do
+    skip_create
+
     title { Faker::Lorem.sentence(word_count: 3) }
     description { Faker::Lorem.paragraph }
     scheduled_date { Faker::Date.forward(days: 30) }
     status { :scheduled }
+
+    initialize_with do
+      template = create(:task_template, title: title, description: description)
+      instance = create(:task_instance, task_template: template, scheduled_date: scheduled_date, status: status)
+      Task.from_instance(instance)
+    end
   end
 end

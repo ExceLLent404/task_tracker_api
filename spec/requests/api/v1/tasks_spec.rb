@@ -75,7 +75,7 @@ RSpec.describe "Tasks API", type: :request do
       end
 
       response "422", "validation error" do
-        let(:task) { { title: "" } }
+        let(:task) { attributes_for(:task, title: "") }
 
         run_test! do |response|
           body = JSON.parse(response.body)

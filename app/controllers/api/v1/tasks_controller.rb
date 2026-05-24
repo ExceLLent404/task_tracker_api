@@ -1,46 +1,40 @@
 module Api
   module V1
     class TasksController < ApplicationController
-      before_action :set_task, only: [ :show, :update, :destroy ]
-
       def index
-        tasks = Task.all.includes(:tags).order(created_at: :desc)
-        tasks = tasks.by_status(params[:status])
-        tasks = tasks.by_date_range(date_from_params(params[:date_from]), date_from_params(params[:date_to]))
-        render json: TaskBlueprint.render(tasks, view: :index)
+        instances = TaskInstance.includes(task_template: :tags)
+                                .order(created_at: :desc)
+        instances = instances.by_status(params[:status])
+        instances = instances.by_date_range(
+          date_from_params(params[:date_from]),
+          date_from_params(params[:date_to])
+        )
+
+        tasks = instances.map { |instance| Task.from_instance(instance) }
+        render json: TaskBlueprint.render(tasks)
       end
 
       def show
-        render json: TaskBlueprint.render(@task)
+        instance = TaskInstance.find(params[:id])
+        render json: TaskBlueprint.render(Task.from_instance(instance))
       end
 
       def create
-        task = Task.new(task_params)
-        if task.save
-          render json: TaskBlueprint.render(task), status: :created
-        else
-          render json: { errors: task.errors.full_messages }, status: :unprocessable_content
-        end
+        task = Tasks::CreateOperation.call(**task_params.to_h.symbolize_keys)
+        render json: TaskBlueprint.render(task), status: :created
       end
 
       def update
-        if @task.update(task_params)
-          render json: TaskBlueprint.render(@task)
-        else
-          render json: { errors: @task.errors.full_messages }, status: :unprocessable_content
-        end
+        task = Tasks::UpdateOperation.call(id: params[:id], **task_params.to_h.symbolize_keys)
+        render json: TaskBlueprint.render(task)
       end
 
       def destroy
-        @task.destroy
+        Tasks::DeleteOperation.call(id: params[:id])
         head :no_content
       end
 
       private
-
-      def set_task
-        @task = Task.find(params[:id])
-      end
 
       def task_params
         params.permit(:title, :description, :scheduled_date, :status, tag_ids: [])
