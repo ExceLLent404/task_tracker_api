@@ -1,7 +1,8 @@
 class TaskBlueprint < Blueprinter::Base
   identifier :id
 
-  fields :title, :description, :scheduled_date, :status
+  fields :title, :description, :scheduled_date, :status,
+         :schedule_type, :schedule_options, :start_date, :active
 
   field :created_at do |task|
     task.created_at.iso8601
@@ -14,6 +15,6 @@ class TaskBlueprint < Blueprinter::Base
   association :tags, blueprint: TagBlueprint, view: :index
 
   view :index do
-    excludes :description, :created_at, :updated_at
+    excludes :description, :schedule_type, :schedule_options, :start_date, :active, :created_at, :updated_at
   end
 end

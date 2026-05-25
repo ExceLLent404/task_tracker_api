@@ -4,16 +4,12 @@ module Api
       before_action :set_instance, only: [ :show, :update, :destroy ]
 
       def index
-        instances = TaskInstance.includes(task_template: :tags)
-                                .order(created_at: :desc)
-        instances = instances.by_status(params[:status])
-        instances = instances.by_date_range(
-          date_from_params(params[:date_from]),
-          date_from_params(params[:date_to])
+        tasks = Tasks::ListQuery.call(
+          date_from: params[:date_from],
+          date_to: params[:date_to],
+          status: params[:status]
         )
-
-        tasks = instances.map { |instance| Task.from_instance(instance) }
-        render json: TaskBlueprint.render(tasks)
+        render json: TaskBlueprint.render(tasks, view: :index)
       end
 
       def show
@@ -38,27 +34,15 @@ module Api
       private
 
       def set_instance
-        template_id, scheduled_date = params[:id].split("_", 2)
-        scheduled_date = Date.iso8601(scheduled_date)
-
-        @instance = TaskInstance.find_by!(
-          task_template_id: template_id,
-          scheduled_date: scheduled_date
-        )
-      rescue Date::Error
-        raise ActiveRecord::RecordNotFound
+        @instance = TaskInstances::FindByCompositeId.call(params[:id])
       end
 
       def task_params
-        params.permit(:title, :description, :scheduled_date, :status, tag_ids: [])
-      end
-
-      def date_from_params(value)
-        return nil if value.blank?
-
-        Date.iso8601(value)
-      rescue Date::Error
-        nil
+        params.permit(
+          :title, :description, :scheduled_date, :status,
+          :schedule_type, :active, schedule_options: {},
+          tag_ids: []
+        )
       end
     end
   end

@@ -4,11 +4,15 @@ module Tasks
       template = instance.task_template
 
       ActiveRecord::Base.transaction do
-        template_attrs = attrs.slice(:title, :description, :tag_ids)
+        template_attrs =
+        attrs.slice(:title, :description, :schedule_type, :schedule_options, :start_date, :active, :tag_ids)
         template.update!(template_attrs) if template_attrs.any?
 
         instance_attrs = attrs.slice(:status, :scheduled_date)
-        instance.update!(instance_attrs) if instance_attrs.any?
+        if instance_attrs.any?
+          instance.save! unless instance.persisted?
+          instance.update!(instance_attrs)
+        end
       end
 
       Task.from_instance(instance)

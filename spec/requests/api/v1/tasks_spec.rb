@@ -33,7 +33,7 @@ RSpec.describe "Tasks API", type: :request do
                  required: %w[id title scheduled_date status tags]
                }
 
-        before { create_pair(:task) }
+        before { create_pair(:task, scheduled_date: Date.current) }
 
         run_test! do |response|
           body = JSON.parse(response.body)
@@ -54,6 +54,9 @@ RSpec.describe "Tasks API", type: :request do
           description: { type: :string },
           scheduled_date: { type: :string, format: :date },
           status: { type: :string, enum: %w[scheduled completed] },
+          schedule_type: { type: :string, enum: %w[once daily monthly_specific_date specific_dates odd_even_days] },
+          schedule_options: { type: :object },
+          active: { type: :boolean },
           tag_ids: {
             type: :array,
             items: { type: :integer }
@@ -100,6 +103,10 @@ RSpec.describe "Tasks API", type: :request do
                  description: { type: :string, nullable: true },
                  scheduled_date: { type: :string, format: :date },
                  status: { type: :string, enum: %w[scheduled completed] },
+                 schedule_type: { type: :string },
+                 schedule_options: { type: :object },
+                 start_date: { type: :string, format: :date },
+                 active: { type: :boolean },
                  created_at: { type: :string, format: "date-time" },
                  updated_at: { type: :string, format: "date-time" },
                  tags: {
@@ -113,7 +120,9 @@ RSpec.describe "Tasks API", type: :request do
                    }
                  }
                },
-               required: %w[id title description scheduled_date status created_at updated_at tags]
+               required: %w[
+                 id title description scheduled_date status schedule_type schedule_options start_date active created_at updated_at tags
+               ]
 
         let(:id) { create(:task).id }
 
@@ -139,6 +148,9 @@ RSpec.describe "Tasks API", type: :request do
           description: { type: :string },
           scheduled_date: { type: :string, format: :date },
           status: { type: :string, enum: %w[scheduled completed] },
+          schedule_type: { type: :string, enum: %w[once daily monthly_specific_date specific_dates odd_even_days] },
+          schedule_options: { type: :object },
+          active: { type: :boolean },
           tag_ids: {
             type: :array,
             items: { type: :integer }

@@ -208,6 +208,18 @@ paths:
                   enum:
                   - scheduled
                   - completed
+                schedule_type:
+                  type: string
+                  enum:
+                  - once
+                  - daily
+                  - monthly_specific_date
+                  - specific_dates
+                  - odd_even_days
+                schedule_options:
+                  type: object
+                active:
+                  type: boolean
                 tag_ids:
                   type: array
                   items:
@@ -249,6 +261,15 @@ paths:
                     enum:
                     - scheduled
                     - completed
+                  schedule_type:
+                    type: string
+                  schedule_options:
+                    type: object
+                  start_date:
+                    type: string
+                    format: date
+                  active:
+                    type: boolean
                   created_at:
                     type: string
                     format: date-time
@@ -270,6 +291,10 @@ paths:
                 - description
                 - scheduled_date
                 - status
+                - schedule_type
+                - schedule_options
+                - start_date
+                - active
                 - created_at
                 - updated_at
                 - tags
@@ -305,6 +330,18 @@ paths:
                   enum:
                   - scheduled
                   - completed
+                schedule_type:
+                  type: string
+                  enum:
+                  - once
+                  - daily
+                  - monthly_specific_date
+                  - specific_dates
+                  - odd_even_days
+                schedule_options:
+                  type: object
+                active:
+                  type: boolean
                 tag_ids:
                   type: array
                   items:
