@@ -15,7 +15,7 @@ RSpec.describe "Tasks API", type: :request do
                items: {
                  type: :object,
                  properties: {
-                   id: { type: :integer },
+                   id: { type: :string },
                    title: { type: :string },
                    scheduled_date: { type: :string, format: :date },
                    status: { type: :string, enum: %w[scheduled completed] },
@@ -86,7 +86,7 @@ RSpec.describe "Tasks API", type: :request do
   end
 
   path "/api/v1/tasks/{id}" do
-    parameter name: :id, in: :path, type: :integer
+    parameter name: :id, in: :path, type: :string
 
     get "Get task by ID" do
       tags "Tasks"
@@ -95,7 +95,7 @@ RSpec.describe "Tasks API", type: :request do
       response "200", "task found" do
         schema type: :object,
                properties: {
-                 id: { type: :integer },
+                 id: { type: :string },
                  title: { type: :string },
                  description: { type: :string, nullable: true },
                  scheduled_date: { type: :string, format: :date },
@@ -121,7 +121,7 @@ RSpec.describe "Tasks API", type: :request do
       end
 
       response "404", "task not found" do
-        let(:id) { -1 }
+        let(:id) { "-1_2000-01-01" }
 
         run_test!
       end
@@ -160,7 +160,7 @@ RSpec.describe "Tasks API", type: :request do
       end
 
       response "404", "task not found" do
-        let(:id) { -1 }
+        let(:id) { "-1_2000-01-01" }
         let(:task) { { title: "Updated task" } }
 
         run_test!
@@ -187,7 +187,7 @@ RSpec.describe "Tasks API", type: :request do
       end
 
       response "404", "task not found" do
-        let(:id) { -1 }
+        let(:id) { "-1_2000-01-01" }
 
         run_test!
       end

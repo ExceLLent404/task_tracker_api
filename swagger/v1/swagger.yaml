@@ -154,7 +154,7 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: integer
+                      type: string
                     title:
                       type: string
                     scheduled_date:
@@ -221,7 +221,7 @@ paths:
       in: path
       required: true
       schema:
-        type: integer
+        type: string
     get:
       summary: Get task by ID
       tags:
@@ -235,7 +235,7 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: integer
+                    type: string
                   title:
                     type: string
                   description:

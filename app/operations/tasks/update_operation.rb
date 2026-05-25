@@ -1,7 +1,6 @@
 module Tasks
   class UpdateOperation < BaseOperation
-    def call(id:, **attrs)
-      instance = TaskInstance.find(id)
+    def call(instance:, **attrs)
       template = instance.task_template
 
       ActiveRecord::Base.transaction do

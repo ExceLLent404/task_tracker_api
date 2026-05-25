@@ -1,7 +1,6 @@
 module Tasks
   class DeleteOperation < BaseOperation
-    def call(id:)
-      instance = TaskInstance.find(id)
+    def call(instance:)
       instance.destroy!
     end
   end

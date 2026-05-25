@@ -1,6 +1,8 @@
 module Api
   module V1
     class TasksController < ApplicationController
+      before_action :set_instance, only: [ :show, :update, :destroy ]
+
       def index
         instances = TaskInstance.includes(task_template: :tags)
                                 .order(created_at: :desc)
@@ -15,8 +17,7 @@ module Api
       end
 
       def show
-        instance = TaskInstance.find(params[:id])
-        render json: TaskBlueprint.render(Task.from_instance(instance))
+        render json: TaskBlueprint.render(Task.from_instance(@instance))
       end
 
       def create
@@ -25,16 +26,28 @@ module Api
       end
 
       def update
-        task = Tasks::UpdateOperation.call(id: params[:id], **task_params.to_h.symbolize_keys)
+        task = Tasks::UpdateOperation.call(instance: @instance, **task_params.to_h.symbolize_keys)
         render json: TaskBlueprint.render(task)
       end
 
       def destroy
-        Tasks::DeleteOperation.call(id: params[:id])
+        Tasks::DeleteOperation.call(instance: @instance)
         head :no_content
       end
 
       private
+
+      def set_instance
+        template_id, scheduled_date = params[:id].split("_", 2)
+        scheduled_date = Date.iso8601(scheduled_date)
+
+        @instance = TaskInstance.find_by!(
+          task_template_id: template_id,
+          scheduled_date: scheduled_date
+        )
+      rescue Date::Error
+        raise ActiveRecord::RecordNotFound
+      end
 
       def task_params
         params.permit(:title, :description, :scheduled_date, :status, tag_ids: [])
